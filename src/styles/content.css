@@ -1,0 +1,47 @@
+/**
+ * Styles for ChatGPTArchiver content script
+ */
+
+.chatgpt-archive-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin: 8px;
+}
+
+.chatgpt-archive-button:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-1px);
+}
+
+.chatgpt-archive-button:active {
+  transform: translateY(0);
+}
+
+.chatgpt-archive-button svg {
+  flex-shrink: 0;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: light) {
+  .chatgpt-archive-button {
+    background: rgba(0, 0, 0, 0.05);
+    border-color: rgba(0, 0, 0, 0.1);
+    color: #000;
+  }
+
+  .chatgpt-archive-button:hover {
+    background: rgba(0, 0, 0, 0.08);
+    border-color: rgba(0, 0, 0, 0.15);
+  }
+}
