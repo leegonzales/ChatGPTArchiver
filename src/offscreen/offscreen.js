@@ -2,14 +2,65 @@ import { PDFExporter } from '../exporters/pdf.js';
 import { PNGExporter } from '../exporters/png.js';
 import { ChatGPTExtractor } from '../utils/extractor.js';
 
+// Global variables for chunk reassembly
+let htmlBuffer = '';
+let expectedChunks = 0;
+let receivedChunks = 0;
+let currentParseUrl = '';
+
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.type === 'PING') {
     sendResponse({ success: true });
     return false;
   }
 
-  if (request.type === 'PARSE_CONVERSATION') {
-    handleParse(request, sendResponse);
+  // Handle chunked HTML transfer
+  if (request.type === 'PARSE_INIT') {
+    htmlBuffer = '';
+    expectedChunks = request.totalChunks;
+    receivedChunks = 0;
+    currentParseUrl = request.url; // Store URL for later
+    sendResponse({ success: true });
+    return false;
+  }
+
+  if (request.type === 'PARSE_CHUNK') {
+    htmlBuffer += request.chunk;
+    receivedChunks++;
+    sendResponse({ success: true });
+    return false;
+  }
+
+  if (request.type === 'PARSE_COMPLETE') {
+    if (receivedChunks !== expectedChunks) {
+      sendResponse({ success: false, error: 'Incomplete chunk transfer' });
+      return false;
+    }
+
+    try {
+      const data = parseAndExtractHtml(htmlBuffer, currentParseUrl); // Use stored URL
+      // Clear buffer after successful parse
+      htmlBuffer = ''; 
+      expectedChunks = 0;
+      receivedChunks = 0;
+      currentParseUrl = '';
+      sendResponse({ success: true, data });
+    } catch (error) {
+      console.error('Offscreen parse error:', error);
+      sendResponse({ success: false, error: error.message });
+    }
+    return false;
+  }
+
+  // For non-chunked, direct HTML (legacy or small transfers)
+  if (request.type === 'PARSE_CONVERSATION') { 
+    try {
+      const data = parseAndExtractHtml(request.html, request.url);
+      sendResponse({ success: true, data });
+    } catch (error) {
+      console.error('Offscreen parse error:', error);
+      sendResponse({ success: false, error: error.message });
+    }
     return true;
   }
   
@@ -19,20 +70,12 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   }
 });
 
-function handleParse(request, sendResponse) {
-  try {
-    const { html, url } = request;
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(html, 'text/html');
-    
-    const extractor = new ChatGPTExtractor(doc);
-    const data = extractor.extractConversation(url);
-    
-    sendResponse({ success: true, data });
-  } catch (error) {
-    console.error('Parse error:', error);
-    sendResponse({ success: false, error: error.message });
-  }
+function parseAndExtractHtml(html, url) {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, 'text/html');
+  
+  const extractor = new ChatGPTExtractor(doc, true); // Pass true for isStatic
+  return extractor.extractConversation(url);
 }
 
 async function handleExport(request, sendResponse) {

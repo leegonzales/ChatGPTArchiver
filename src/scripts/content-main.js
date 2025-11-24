@@ -71,7 +71,7 @@ class ContentController {
   }
 
   handleExportClick() {
-    const data = this.extractor.extractConversation();
+    const data = this.extractor.extractConversation(window.location.href);
     chrome.runtime.sendMessage({
       type: 'OPEN_EXPORT_PANEL',
       data: data
@@ -81,7 +81,7 @@ class ContentController {
   setupMessageListener() {
     chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       if (request.type === 'EXTRACT_CONVERSATION') {
-        const data = this.extractor.extractConversation();
+        const data = this.extractor.extractConversation(window.location.href);
         // Signal ready state after extraction (legacy support for background polling)
         this.sendPageReadySignal();
         sendResponse({ success: true, data });
