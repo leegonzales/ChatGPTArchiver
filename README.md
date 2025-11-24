@@ -9,10 +9,6 @@
 -   **High Fidelity:** Preserves code blocks, formatting, and timestamps.
 -   **Privacy First:** Runs entirely in your browser. No data is sent to external servers.
 
-## ✨ Inspired By
-
-This project is inspired by and builds upon the foundational work of [chatgpt-exporter](https://github.com/pionxzh/chatgpt-exporter) by pionxzh. We thank the original creator for their valuable contribution to the community.
-
 ## 📥 Installation
 
 ### For Users (Corporate / Standard)

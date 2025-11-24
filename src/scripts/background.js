@@ -56,11 +56,31 @@ class BackgroundService {
 
   async handleBatchExport(request) {
     const { conversationIds, format, options } = request;
+    const total = conversationIds.length;
+    let successful = 0;
+    let failed = 0;
+
+    // UX: Notify start
+    chrome.notifications.create('batch-start', {
+      type: 'basic',
+      iconUrl: 'src/icons/icon128.png', 
+      title: 'Batch Export Started',
+      message: `Exporting ${total} conversations...`
+    });
+
+    // UX: Set Badge
+    chrome.action.setBadgeBackgroundColor({ color: '#10a37f' }); // OpenAI Green
 
     // Ensure offscreen is ready once
     await this.setupOffscreenDocument();
 
-    for (const id of conversationIds) {
+    for (let i = 0; i < total; i++) {
+      const id = conversationIds[i];
+      const remaining = total - i;
+      
+      // UX: Update Badge
+      chrome.action.setBadgeText({ text: `${remaining}` });
+
       try {
         const url = `https://chat.openai.com/c/${id}`;
         
@@ -109,12 +129,24 @@ class BackgroundService {
 
         // Small delay to be rate-limit friendly
         await this.sleep(1000);
+        successful++;
 
       } catch (error) {
         console.error(`Error processing batch item ${id}:`, error);
-        // Continue to next item rather than aborting entire batch
+        failed++;
       }
     }
+
+    // UX: Clear Badge
+    chrome.action.setBadgeText({ text: '' });
+
+    // UX: Notify completion
+    chrome.notifications.create('batch-end', {
+      type: 'basic',
+      iconUrl: 'src/icons/icon128.png',
+      title: 'Batch Export Complete',
+      message: `Finished! ${successful} succeeded, ${failed} failed.`
+    });
   }
 
   async sendChunkedHtmlToOffscreen(html, url) {
