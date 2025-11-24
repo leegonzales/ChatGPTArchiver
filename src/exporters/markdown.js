@@ -91,33 +91,58 @@ export class MarkdownExporter {
   }
 
   convertCodeBlocks(html, style) {
-    // Parse HTML and extract code blocks
+    if (typeof DOMParser === 'undefined') {
+      return html.replace(/<[^>]*>/g, ''); // Fallback: strip tags if no parser
+    }
+
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, 'text/html');
-    const codeBlocks = doc.querySelectorAll('pre code, code');
 
-    let result = html;
-
-    codeBlocks.forEach(block => {
-      const code = block.textContent;
-      const language = this.detectLanguage(block);
-
-      if (style === 'fenced') {
-        const markdown = `\`\`\`${language}\n${code}\n\`\`\``;
-        result = result.replace(block.outerHTML, markdown);
-      } else {
-        const indented = code.split('\n').map(line => `    ${line}`).join('\n');
-        result = result.replace(block.outerHTML, indented);
+    // 1. Handle Fenced Code Blocks (PRE > CODE)
+    const preBlocks = doc.querySelectorAll('pre');
+    preBlocks.forEach(pre => {
+      const code = pre.querySelector('code');
+      if (code) {
+        const language = this.detectLanguage(code) || '';
+        const codeText = code.textContent;
+        
+        let markdown = '';
+        if (style === 'fenced') {
+          markdown = `\n\`\`\`${language}\n${codeText}\n\`\`\`\n`;
+        } else {
+          markdown = '\n' + codeText.split('\n').map(line => `    ${line}`).join('\n') + '\n';
+        }
+        
+        // Replace the entire PRE element with the markdown text node
+        const textNode = doc.createTextNode(markdown);
+        pre.parentNode.replaceChild(textNode, pre);
       }
     });
 
-    // Strip remaining HTML tags
-    const tempDoc = parser.parseFromString(result, 'text/html');
-    return tempDoc.body.textContent || result;
+    // 2. Handle Inline Code (CODE not in PRE)
+    const inlineCodes = doc.querySelectorAll('code');
+    inlineCodes.forEach(code => {
+      // Verify it's still in the document (not removed with PRE)
+      if (doc.contains(code)) {
+        const markdown = `\`${code.textContent}\``;
+        const textNode = doc.createTextNode(markdown);
+        code.parentNode.replaceChild(textNode, code);
+      }
+    });
+
+    // 3. Convert Paragraphs to newlines (optional but good for formatting)
+    const paragraphs = doc.querySelectorAll('p');
+    paragraphs.forEach(p => {
+      const textNode = doc.createTextNode(`${p.textContent}\n\n`);
+      p.parentNode.replaceChild(textNode, p);
+    });
+
+    return doc.body.textContent.trim();
   }
 
   detectLanguage(codeBlock) {
-    const classList = codeBlock.className;
+    // ChatGPT classes: language-javascript, etc.
+    const classList = codeBlock.className || '';
     const langMatch = classList.match(/language-(\w+)/);
     return langMatch ? langMatch[1] : '';
   }

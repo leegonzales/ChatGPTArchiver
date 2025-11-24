@@ -36,6 +36,14 @@ class BackgroundService {
       case 'EXPORT_SINGLE':
         const { data, format, options } = request.payload;
         await this.exportAndDownload(data, format, options);
+        
+        chrome.notifications.create({
+          type: 'basic',
+          iconUrl: 'src/icons/icon128.png',
+          title: 'Export Complete',
+          message: `Saved "${data.title}" to your Downloads folder.`
+        });
+
         sendResponse({ success: true });
         break;
 
@@ -61,7 +69,7 @@ class BackgroundService {
     let failed = 0;
 
     // UX: Notify start
-    chrome.notifications.create('batch-start', {
+    chrome.notifications.create({
       type: 'basic',
       iconUrl: 'src/icons/icon128.png', 
       title: 'Batch Export Started',
@@ -141,7 +149,7 @@ class BackgroundService {
     chrome.action.setBadgeText({ text: '' });
 
     // UX: Notify completion
-    chrome.notifications.create('batch-end', {
+    chrome.notifications.create({
       type: 'basic',
       iconUrl: 'src/icons/icon128.png',
       title: 'Batch Export Complete',
