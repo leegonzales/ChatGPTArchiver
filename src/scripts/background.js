@@ -39,7 +39,7 @@ class BackgroundService {
         
         chrome.notifications.create({
           type: 'basic',
-          iconUrl: 'src/icons/icon128.png',
+          iconUrl: chrome.runtime.getURL('src/icons/icon128.png'),
           title: 'Export Complete',
           message: `Saved "${data.title}" to your Downloads folder.`
         });
@@ -71,7 +71,7 @@ class BackgroundService {
     // UX: Notify start
     chrome.notifications.create({
       type: 'basic',
-      iconUrl: 'src/icons/icon128.png', 
+      iconUrl: chrome.runtime.getURL('src/icons/icon128.png'), 
       title: 'Batch Export Started',
       message: `Exporting ${total} conversations to your Downloads folder...`
     });
@@ -149,9 +149,9 @@ class BackgroundService {
     chrome.action.setBadgeText({ text: '' });
 
     // UX: Notify completion
-    chrome.notifications.create({
+    chrome.notifications.create('batch-end', {
       type: 'basic',
-      iconUrl: 'src/icons/icon128.png',
+      iconUrl: chrome.runtime.getURL('src/icons/icon128.png'),
       title: 'Batch Export Complete',
       message: `Finished! ${successful} succeeded, ${failed} failed. Check your Downloads folder.`
     });
