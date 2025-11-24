@@ -65,7 +65,7 @@ class BackgroundService {
       type: 'basic',
       iconUrl: 'src/icons/icon128.png', 
       title: 'Batch Export Started',
-      message: `Exporting ${total} conversations...`
+      message: `Exporting ${total} conversations to your Downloads folder...`
     });
 
     // UX: Set Badge
@@ -145,7 +145,7 @@ class BackgroundService {
       type: 'basic',
       iconUrl: 'src/icons/icon128.png',
       title: 'Batch Export Complete',
-      message: `Finished! ${successful} succeeded, ${failed} failed.`
+      message: `Finished! ${successful} succeeded, ${failed} failed. Check your Downloads folder.`
     });
   }
 
