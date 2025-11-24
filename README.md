@@ -16,7 +16,7 @@ We have a detailed, step-by-step guide for installing this extension in a corpor
 👉 **[Read Installation Guide](docs/USER_GUIDE.md)**
 
 **Quick Summary:**
-1.  Download the latest release ZIP file.
+1.  Download the **[chatgpt-archiver.zip](dist/chatgpt-archiver.zip)** file from the `dist` folder in this repository.
 2.  Unzip the file.
 3.  Go to `chrome://extensions` in Chrome.
 4.  Enable "Developer mode" (top right).

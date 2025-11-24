@@ -6,7 +6,7 @@
 ---
 
 ### 1. Prepare the Files
-1.  **Download** the extension folder (usually provided as a `.zip` file by your IT department or developer).
+1.  **Download** the **[chatgpt-archiver.zip](../dist/chatgpt-archiver.zip)** file from the `dist` folder of this repository.
 2.  **Unzip** the file.
     *   *Right-click* the zip file and select **"Extract All..."** or **"Unzip"**.
     *   Remember where you saved this folder (e.g., your "Downloads" or "Documents" folder).
