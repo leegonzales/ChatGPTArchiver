@@ -2,6 +2,8 @@
 
 **ChatGPTArchiver** is a powerful Chrome extension that allows you to archive your ChatGPT conversations in multiple formats, including PDF, PNG, Markdown, JSON, HTML, and plain text. It supports both single-chat archiving and **batch archiving** of multiple conversations. This project has been re-engineered for Manifest V3 compliance and enhanced features, building upon the excellent work of `pionxzh/chatgpt-exporter`.
 
+![ChatGPTArchiver System Overview](assets/system-overview.jpeg)
+
 ## 🚀 Features
 
 -   **Multiple Formats:** Archive to PDF, PNG, Markdown, JSON, HTML, or Text.
