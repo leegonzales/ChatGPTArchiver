@@ -16,6 +16,21 @@ class ContentController {
     console.log('ChatGPT Archiver: Content script loaded');
     this.injectExportButton();
     this.setupMessageListener();
+    this.checkAndSignalReady();
+  }
+
+  checkAndSignalReady() {
+    // Poll briefly for conversation content to ensure React has hydrated
+    const checkReady = setInterval(() => {
+        const messages = document.querySelectorAll('[data-testid^="conversation-turn-"]');
+        if (messages.length > 0) {
+            clearInterval(checkReady);
+            this.sendPageReadySignal();
+        }
+    }, 500);
+
+    // Stop polling after 10s to prevent infinite checking
+    setTimeout(() => clearInterval(checkReady), 10000);
   }
 
   injectExportButton() {
@@ -82,8 +97,6 @@ class ContentController {
     chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       if (request.type === 'EXTRACT_CONVERSATION') {
         const data = this.extractor.extractConversation(window.location.href);
-        // Signal ready state after extraction (legacy support for background polling)
-        this.sendPageReadySignal();
         sendResponse({ success: true, data });
       }
 

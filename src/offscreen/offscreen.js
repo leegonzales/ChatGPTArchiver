@@ -2,11 +2,33 @@ import { PDFExporter } from '../exporters/pdf.js';
 import { PNGExporter } from '../exporters/png.js';
 import { ChatGPTExtractor } from '../utils/extractor.js';
 
-// Global variables for chunk reassembly
-let htmlBuffer = '';
-let expectedChunks = 0;
-let receivedChunks = 0;
-let currentParseUrl = '';
+// Chunk reassembly state
+const chunkAssembler = {
+  buffer: '',
+  expectedChunks: 0,
+  receivedChunks: 0,
+  url: '',
+  
+  reset(totalChunks, url) {
+    this.buffer = '';
+    this.expectedChunks = totalChunks;
+    this.receivedChunks = 0;
+    this.url = url;
+  },
+  
+  addChunk(chunk) {
+    this.buffer += chunk;
+    this.receivedChunks++;
+  },
+  
+  isComplete() {
+    return this.receivedChunks > 0 && this.receivedChunks === this.expectedChunks;
+  },
+  
+  getData() {
+    return { html: this.buffer, url: this.url };
+  }
+};
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.type === 'PING') {
@@ -16,34 +38,30 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
   // Handle chunked HTML transfer
   if (request.type === 'PARSE_INIT') {
-    htmlBuffer = '';
-    expectedChunks = request.totalChunks;
-    receivedChunks = 0;
-    currentParseUrl = request.url; // Store URL for later
+    chunkAssembler.reset(request.totalChunks, request.url);
     sendResponse({ success: true });
     return false;
   }
 
   if (request.type === 'PARSE_CHUNK') {
-    htmlBuffer += request.chunk;
-    receivedChunks++;
+    chunkAssembler.addChunk(request.chunk);
     sendResponse({ success: true });
     return false;
   }
 
   if (request.type === 'PARSE_COMPLETE') {
-    if (receivedChunks !== expectedChunks) {
+    if (!chunkAssembler.isComplete()) {
       sendResponse({ success: false, error: 'Incomplete chunk transfer' });
       return false;
     }
 
     try {
-      const data = parseAndExtractHtml(htmlBuffer, currentParseUrl); // Use stored URL
-      // Clear buffer after successful parse
-      htmlBuffer = ''; 
-      expectedChunks = 0;
-      receivedChunks = 0;
-      currentParseUrl = '';
+      const { html, url } = chunkAssembler.getData();
+      const data = parseAndExtractHtml(html, url);
+      
+      // Reset after successful parse
+      chunkAssembler.reset(0, '');
+      
       sendResponse({ success: true, data });
     } catch (error) {
       console.error('Offscreen parse error:', error);

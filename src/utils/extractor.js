@@ -93,6 +93,17 @@ export class ChatGPTExtractor {
   }
 
   /**
+   * Helper to safely get the body or root element content
+   * @returns {Element} The body or root element
+   */
+  getBody() {
+    if (this.root.nodeType === 9) { // DOCUMENT_NODE
+      return this.root.body;
+    }
+    return this.root; // Assume element is the root container
+  }
+
+  /**
    * Assesses the completeness of a conversation extracted from static HTML.
    * This helps detect truncated or incompletely rendered pages.
    * @param {Object} conversation - The extracted conversation object.
@@ -101,6 +112,7 @@ export class ChatGPTExtractor {
   assessCompleteness(conversation) {
     const warnings = [];
     let score = 1.0; // Start with full confidence
+    const body = this.getBody();
 
     // Check 1: Lazy load placeholders (indicates truncated content)
     const lazyPlaceholders = this.root.querySelectorAll(
@@ -122,7 +134,7 @@ export class ChatGPTExtractor {
 
     // Check 3: Very few messages extracted (might be truncated or an error page)
     // Also checks for a "Load more" button which indicates more content is available
-    if (conversation.messages.length < 5 && this.root.body.innerHTML.includes('Load more')) {
+    if (conversation.messages.length < 5 && body && body.innerHTML.includes('Load more')) {
       score -= 0.4;
       warnings.push('Conversation appears truncated (very few messages extracted).');
     }
@@ -137,7 +149,7 @@ export class ChatGPTExtractor {
     }
 
     // Check 5: No messages extracted at all, but the HTML itself is not empty
-    if (conversation.messages.length === 0 && this.root.body.textContent.trim().length > 100) {
+    if (conversation.messages.length === 0 && body && body.textContent.trim().length > 100) {
         score -= 0.6; // High penalty
         warnings.push('No messages extracted despite non-empty page content (likely a parsing issue or severe truncation).');
     }
@@ -203,7 +215,7 @@ export class ChatGPTExtractor {
 
     const avatar = element.querySelector('img[alt]');
     if (avatar) {
-      const alt = avatar.toLowerCase();
+      const alt = avatar.alt.toLowerCase(); // FIX: access .alt property
       if (alt.includes('user')) return 'user';
       if (alt.includes('chatgpt') || alt.includes('assistant')) return 'assistant';
     }
