@@ -3,6 +3,10 @@ node_modules/
 package-lock.json
 yarn.lock
 
+# Test coverage
+coverage/
+.vitest/
+
 # Build outputs
 build/
 

@@ -1,0 +1,26 @@
+{
+  "name": "chatgpt-archiver",
+  "version": "1.0.0",
+  "description": "Archive your ChatGPT conversations in multiple formats",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest run --coverage"
+  },
+  "keywords": [
+    "chatgpt",
+    "export",
+    "archive",
+    "chrome-extension"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "vitest": "^1.0.4",
+    "jsdom": "^23.0.1",
+    "@vitest/ui": "^1.0.4",
+    "@vitest/coverage-v8": "^1.0.4"
+  }
+}

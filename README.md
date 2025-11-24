@@ -37,9 +37,36 @@ If you want to contribute or modify the code, please read our **[Developer Guide
 4.  **Choose Format:** Click your desired format (e.g., PDF, Markdown).
 5.  **Archive:** Click the "Archive" button.
 
+## 🧪 Testing
+
+This project includes comprehensive test coverage:
+
+```bash
+# Install dependencies
+npm install
+
+# Run tests
+npm test
+
+# Watch mode (tests re-run on changes)
+npm run test:watch
+
+# Coverage report
+npm run test:coverage
+```
+
+**Test Coverage:**
+- 60+ automated unit tests for core functionality
+- Manual test checklist for browser-specific features
+- See **[tests/README.md](tests/README.md)** for details
+
 ## 🤝 Contributing
 
 We welcome contributions! Please see **[CONTRIBUTING.md](CONTRIBUTING.md)** for details on how to get started.
+
+Before submitting a PR:
+1. Run `npm test` to ensure all tests pass
+2. Review the manual test checklist in `tests/MANUAL_CHECKLIST.md`
 
 ## 📄 License
 
