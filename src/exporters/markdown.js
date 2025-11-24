@@ -98,25 +98,26 @@ export class MarkdownExporter {
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, 'text/html');
 
-    // 1. Handle Fenced Code Blocks (PRE > CODE)
+    // 1. Handle Fenced Code Blocks (PRE)
     const preBlocks = doc.querySelectorAll('pre');
     preBlocks.forEach(pre => {
+      // Try to find a code element for language detection and cleaner text
       const code = pre.querySelector('code');
-      if (code) {
-        const language = this.detectLanguage(code) || '';
-        const codeText = code.textContent;
-        
-        let markdown = '';
-        if (style === 'fenced') {
-          markdown = `\n\`\`\`${language}\n${codeText}\n\`\`\`\n`;
-        } else {
-          markdown = '\n' + codeText.split('\n').map(line => `    ${line}`).join('\n') + '\n';
-        }
-        
-        // Replace the entire PRE element with the markdown text node
-        const textNode = doc.createTextNode(markdown);
-        pre.parentNode.replaceChild(textNode, pre);
+      const language = code ? (this.detectLanguage(code) || '') : '';
+      
+      // Use textContent of the CODE element if available (avoids "Copy code" button text), 
+      // otherwise fallback to PRE textContent
+      const codeText = code ? code.textContent : pre.textContent;
+      
+      let markdown = '';
+      if (style === 'fenced') {
+        markdown = `\n\`\`\`${language}\n${codeText}\n\`\`\`\n`;
+      } else {
+        markdown = '\n' + codeText.split('\n').map(line => `    ${line}`).join('\n') + '\n';
       }
+      
+      const textNode = doc.createTextNode(markdown);
+      pre.parentNode.replaceChild(textNode, pre);
     });
 
     // 2. Handle Inline Code (CODE not in PRE)

@@ -215,7 +215,7 @@ export class ChatGPTExtractor {
 
     const avatar = element.querySelector('img[alt]');
     if (avatar) {
-      const alt = avatar.alt.toLowerCase(); // FIX: access .alt property
+      const alt = (avatar.getAttribute('alt') || '').toLowerCase();
       if (alt.includes('user')) return 'user';
       if (alt.includes('chatgpt') || alt.includes('assistant')) return 'assistant';
     }
@@ -225,23 +225,18 @@ export class ChatGPTExtractor {
 
   getMessageContent(element) {
     const textContainer = element.querySelector('[class*="markdown"], .whitespace-pre-wrap, [data-message-author-role]');
-    if (textContainer) {
-      const codeBlocks = textContainer.querySelectorAll('pre code, code');
-      codeBlocks.forEach(block => {
-        block.setAttribute('data-code-block', 'true');
-      });
+    const container = textContainer || element;
 
-      return {
-        text: textContainer.textContent,
-        html: textContainer.innerHTML,
-        hasCode: codeBlocks.length > 0
-      };
-    }
+    const codeBlocks = container.querySelectorAll('pre, code');
+    codeBlocks.forEach(block => {
+      // Tag pre/code for potential future styling
+      block.setAttribute('data-code-block', 'true');
+    });
 
     return {
-      text: element.textContent,
-      html: element.innerHTML,
-      hasCode: false
+      text: container.textContent,
+      html: container.innerHTML,
+      hasCode: codeBlocks.length > 0
     };
   }
 

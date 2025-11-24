@@ -303,3 +303,32 @@ footer a {
 footer a:hover {
   text-decoration: underline;
 }
+
+/* Scrollbar - Elegant */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 5px;
+  border: 3px solid var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+.batch-list::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+  border-radius: var(--radius);
+}
+
+.batch-list::-webkit-scrollbar-thumb {
+  border: 3px solid var(--bg-secondary);
+}

@@ -104,9 +104,15 @@ class PopupController {
   }
 
   async loadBatchConversations() {
+    // Fix: prevent reloading and showing "Loading..." if already fetched
+    if (this.batchConversations && this.batchConversations.length > 0) {
+        this.renderBatchList();
+        return;
+    }
+
     try {
       const listEl = document.getElementById('batch-list');
-      listEl.innerHTML = '<div class="loading">Loading conversations...</div>';
+      listEl.innerHTML = '<div class="loading" style="padding:20px; text-align:center; color:var(--text-secondary);">Loading conversations...</div>';
 
       const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 
@@ -118,12 +124,12 @@ class PopupController {
         this.batchConversations = response.data;
         this.renderBatchList();
       } else {
-        listEl.innerHTML = '<div class="loading">No conversations found</div>';
+        listEl.innerHTML = '<div class="loading" style="padding:20px; text-align:center; color:var(--text-secondary);">No conversations found</div>';
       }
     } catch (error) {
       console.error('Error loading batch conversations:', error);
       document.getElementById('batch-list').innerHTML =
-        '<div class="loading">Error loading conversations</div>';
+        '<div class="loading" style="padding:20px; text-align:center; color:var(--error);">Error loading conversations</div>';
     }
   }
 
